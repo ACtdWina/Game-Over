@@ -1,0 +1,427 @@
+<!DOCTYPE html>     
+ <html>	 
+   <head> 
+     <meta http-equiv="Content-Type" content="text/html;charset=gbk"> 
+   <style type="text/css"> 
+     body { 
+      background:rgba(100,145,250,0.3); 
+     } 
+   #canvas{ 
+	height:100%; 
+ 	width:100%; 
+ margin:0px; 
+ padding:0px; 
+ background:red; 
+ cursor:crosshair; 
+ } 
+  #canvas2{ 
+ 	height:20%; 
+ 	width:100%; 
+ margin:0px; 
+ padding:10px; 
+ background:rgba(100,145,250,0.3); 
+ border:thin inset #0FF; 
+ cursor:crosshair; 
+ } 
+     </style> 
+ </head> 
+   
+   <body onkeydown="moveBall(event)">   
+ 
+ 
+     <canvas id="canvas" width='600'; height='700'> 
+      
+     </canvas> 
+     <script> 
+ 
+ 
+       var canvas=document.getElementById("canvas"); 
+       var context=canvas.getContext('2d'); 
+       var width = canvas.width; 
+       var height = canvas.height; 
+       var mouse; 
+      var stop; 
+        
+       var imgPlane = [ newImg("A.png"),  
+                        newImg("B.png"),  
+                       newImg("C.png"), 
+ 					   newImg("D.png"), 
+ 					   newImg("E.png"), 
+ 					   newImg("F.png") 
+					   ,newImg("G.png") 
+ 					   ,newImg("H.png"), 
+					   newImg("I.png") 
+ 					   ,newImg("J.png") 
+ 					   ,newImg("K.png") 
+ 					   ,newImg("L.png") 
+ 					   ,newImg("M.png") 
+ 					   ,newImg("N.png") 
+ 					   ,newImg("O.png") 
+ 					   ,newImg("P.png") 
+ 					   ,newImg("Q.png") 
+ 					   ,newImg("R.png") 
+ 					   ,newImg("S.png") 
+				       ,newImg("T.png") 
+ 					   ,newImg("U.png"), 
+ 					    newImg("V.png"), 
+						newImg("W.png") 
+ 						,newImg("X.png"), 
+						newImg("Y.png"), 
+ 						newImg("Z.png") ]; 
+       var imgMe = newImg("我我我2.png"); 
+      var imgP=newImg("ppt.jpg"); 
+       var imgOver = newImg("over.png");
+	   var imgBack=newImg("background.jpg");
+       var imgBg = [newImg("background.jpg"), newImg("background.jpg")]; 
+ 
+ 
+ 
+ 
+       function newImg(src){ 
+         var obj = new Image(); 
+         obj.src = src; 
+         return obj; 
+       } 
+
+ 
+       
+       /*function captureMouse(element) { 
+         var mouse={x:width/2, y:height/2}; 
+ 
+ 
+         element.addEventListener('mousemove',function(event){ 
+           var x,y; 
+           if ( event.pageX || event.pageY ) { 
+             x = event.pageX; 
+             y = event.pageY; 
+           } else { 
+             x = event.clientX + document.body.scrollLeft 
+                 + document.documentElement.scrollLeft; 
+             y = event.clientY + document.body.scrollTop 
+                 + document.documentElement.scrollTop; 
+           } 
+ 
+ 
+           x -= element.offsetLeft; 
+           y -= element.offsetTop; 
+ 
+ 
+           mouse.x = x; 
+           mouse.y = y; 
+ 
+ 
+         }, false); 
+ 
+ 
+        return mouse; 
+       }; 
+ 
+ */
+       function GameObject() { 
+
+ 
+       this.move = function (dx, dy) { 
+          this.x += dx; 
+          this.y += dy; 
+        } 
+ 
+ 
+         this.draw = function() { 
+          context.drawImage(this.img, this.x, this.y);  
+         } 
+ 
+ 
+         this.isOut = function(onlydown) { 
+          return (this.y > height || (!onlydown && this.y < 0)); 
+         } 
+ 
+ 
+         this.centerX = function() { 
+           return this.img.width / 2 + this.x; 
+         } 
+
+ 
+         this.collide = function(another) { 
+           return !(this.x + this.img.width < another.x || this.x > another.x + another.img.width 
+                    || this.y + this.img.height < another.y || this.y > another.y + another.img.height); 
+         } 
+ 
+ 
+       } 
+ 
+ 
+       Me.prototype = new GameObject(); 
+       function Me() { 
+         this.x =0; 
+ 		 this.y =550; 
+         this.img = imgMe; 
+         this.run = function() { 
+ 			//this.x=mouse.x; 
+ 		
+ 		 
+ 		   
+ 		  for (var i = 0; i < planes.length; i++) { 
+             if (this.collide(planes[i])) { 
+               this.img = imgOver; 
+			   planes[i].img=imgOver;
+              this.draw(); 
+               return true; 
+            } 
+           } 
+		   this.img=imgMe;
+           this.draw(); 
+           return true; 
+         } 
+       } 
+
+ 
+      Plane.prototype = new GameObject(); 
+      function Plane(type) { 
+         this.img = imgPlane[type]; 
+        this.x = randInt(0, width - this.img.width); 
+         this.y = - this.img.height; 
+         if (type == 0) { 
+           this.lives = 1; 
+           this.speed = randInt(3 * time.factor, 4 * time.factor); 
+         } else if (type == 1) { 
+           this.lives = 6; 
+           this.speed = randInt(2 * time.factor, 3 * time.factor); 
+         } else { 
+           this.lives = 20; 
+           this.speed = randInt(1 * time.factor, 2 * time.factor); 
+         } 
+         this.run = function() { 
+           this.move(0, 10*this.speed); 
+           if (this.isOut(true)) return false; 
+    
+           this.draw(); 
+           return true; 
+         } 
+       } 
+ 
+ 
+       function BackGround() { 
+         this.x = this.y = 0; 
+        this.cur = 0; 
+         this.speed = 1; 
+         this.run = function() { 
+           this.x += this.speed; 
+           if (this.x > width) { 
+             this.x = 0; 
+             this.cur = 1 - this.cur; 
+          } 
+ 		  
+           context.drawImage(imgBg[this.cur], this.x-width, this.y,canvas.width,canvas.height); 
+ 		  context.drawImage(imgBg[1 - this.cur], this.x, this.y,canvas.width,canvas.height); 
+         } 
+       } 
+        
+       function GameTime() { 
+         this.startTime = (new Date()).getTime(); 
+         this.cur = 0; 
+         this.ms = 0; 
+         this.factor = 1; 
+ 
+ 
+         this.run = function () { 
+          var s = parseInt((new Date()).getTime() - this.startTime) / 100; 
+          this.ms = parseInt(s % 10); 
+          this.cur = parseInt(s / 10); 
+            this.factor = 1 + this.cur * 0.01; 
+           context.font="30px Times"; 
+           context.fillStyle = "#fff"; 
+          context.fillText(this.cur + "." + this.ms, 400, 60); 
+         } 
+       } 
+ 
+ 
+       function Score() { 
+        this.num = 0; 
+ 
+ 
+        this.add = function (delta) { 
+          this.num += delta; 
+        } 
+
+ 
+         this.run = function () { 
+           context.font="30px Times"; 
+          context.fillStyle = "#fff"; 
+           context.fillText(this.num, 30, 60); 
+         } 
+      } 
+ 
+ 
+       var score; 
+       var time; 
+       var backGround; 
+       var me; 
+       var planes; 
+       
+     init(); 
+       function init () { 
+         score = new Score(); 
+        time = new GameTime(); 
+        backGround = new BackGround(); 
+       me = new Me(); 
+         planes = new Array(); 
+          
+       } 
+
+ 
+       function randInt (min, max) { 
+        return Math.floor(Math.random() * (max - min)); 
+       } 
+ 
+ 
+       function run() { 
+ 		   
+     
+ 	 
+ 
+ 
+         var type = randInt(1, 27); 
+         if (!randInt(0, (type + 1)/ time.factor)) 
+		            planes.push(new Plane(type));  backGround.run();
+   context.drawImage(imgP,0,0); 
+       //  backGround.run(); 
+   
+         for (var i = 0; i < planes.length; i++) { 
+           if (!planes[i].run()) { 
+             planes.splice(i, 1); 
+             i--; 
+           } 
+         } 
+ 
+ 
+         if (!me.run(event)) { 
+         } 
+       time.run(); 
+         score.run(); 
+       } 
+
+ 
+       function gameover() { 
+        clearInterval(stop); 
+         var res = window.confirm("分数: " + score.num + "\n是否重新开始？"); 
+         if (res) { 
+           init(); 
+           stop = setInterval("run()",1000/100); 
+         } 
+       } 
+
+ 
+     window.onload = function() { 
+         mouse = captureMouse(canvas); 
+         stop = setInterval("run()",1000/100); 
+         me = new Me(); 
+       } 
+    
+ 	  function Ball(x, y ,radius, speed){     
+     //this.image="我我我2.png"; 
+     this.x = x || 20;   //圆球的x坐标，默认为10     
+     this.y = y || 650;   //圆球的y坐标，默认为10     
+     this.radius = radius || 20; //圆球的半径，默认为10     
+     this.speed = speed || 5;    //圆球的移动速度，默认为5     
+          
+   //向上移动     
+     this.moveUp = function(){     
+         this.y -= this.speed;     
+         if(this.y < this.radius){                //防止超出上边界     
+             this.y = this.radius;                
+        }     
+    };     
+         
+    //向右移动     
+    this.moveRight = function(){     
+       this.x += this.speed;     
+	          var maxX = canvas.width - this.radius;     
+         if(this.x > maxX){     
+             //防止超出右边界     
+            this.x = maxX;               
+        }     
+     };     
+      
+     //向左移动     
+     this.moveLeft = function(){     
+         this.x -= this.speed;     
+         if(this.x < this.radius){     
+             //防止超出左边界     
+             this.x = this.radius;                
+         }     
+     };     
+          
+     //向下移动     
+     this.moveDown = function(){     
+         this.y += this.speed;     
+         var maxY = canvas.height - this.radius;     
+        if(this.y > maxY){     
+             //防止超出下边界     
+            this.y = maxY;     
+         }     
+     };     
+ }     
+     
+ //绘制小球     
+ function drawBall(ball){     
+     if(typeof ctx != "undefined"){     
+	 
+	 ctx.beginPath();
+            ctx.lineWidth = "3";
+            ctx.strokeStyle = "red";
+            ctx.fillStyle = "white";
+			ctx.arc(ball.x,ball.y, ball.radius, 0, Math.PI *2,false);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            ctx.font = "32pt Arial";
+            ctx.strokeText("A",ball.x-15, ball.y+18);
+            ctx.strokeStyle = "blue";
+            ctx.stroke();
+         /*ctx.beginPath();     
+         ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI *2,false);     
+         ctx.fill();  */   
+     }  
+ 	 
+ 	//context.drawImage(ball.image,0,0);    
+ }     
+     
+ //清空canvas画布     
+ function clearCanvas(){     
+     if(typeof ctx != "undefined"){     
+         ctx.clearRect(0, 0, 400, 300);           
+     }     
+ }     
+     
+ var ball = new Ball();     
+ //简单地检测当前浏览器是否支持Canvas对象，以免在一些不支持html5的浏览器中提示语法错误     
+ if(canvas.getContext){       
+     //获取对应的CanvasRenderingContext2D对象(画笔)     
+     var ctx = canvas.getContext("2d");     
+     drawBall(ball);     
+ }     
+     
+ //onkeydown事件的回调处理函数     
+ //根据用户的按键来控制小球的移动     
+ function moveBall(event){     
+     switch(event.keyCode){     
+        case 37:    //左方向键     
+            ball.moveLeft();     
+             break;     
+         
+       case 39:    //右方向键     
+             ball.moveRight();     
+             break;     
+          
+         default:    //其他按键操作不响应     
+             return;     
+   }            
+     clearCanvas();  //先清空画布     
+     drawBall(ball); //再绘制最新的小球     
+ }     
+ 	   
+ 
+ 
+     </script> 
+   </body> 
+ </html> 
